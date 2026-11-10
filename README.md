@@ -17,7 +17,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 ## What it changes
 
 - Replaces X's left sidebar with a text nav: home, explore, notifications, chat, history, profile, write, settings. Unread counts come from X's own nav.
-- Explore is a search landing: the news strip, trends, tabs, and "who to follow" blocks are hidden, and the search field is a flat line instead of a pill.
+- Explore keeps search, Today's News and the post feed. News items become a plain list of underlined titles with the time on the right; trends, tabs and "who to follow" are hidden. The search field is a flat line instead of a pill.
 - Search suggestions and recent searches use a flat, shadowless panel with compact text rows.
 - Hides the right sidebar, Grok, the chat drawer, Premium upsell cards and promoted posts.
 - Keeps only the "for you" and "following" tabs on home and hides "who to follow" blocks there.
@@ -27,6 +27,8 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 - New post (the modal and the composer on home) matches the timeline: 14px text, a lowercase placeholder, text tools (`media  gif  poll  emoji  schedule  location`), and a `post` pill that fills in once there is something to post. The audience picker is a quiet outline pill.
 - Confirmation dialogs, toasts and profile hover cards use the same flat panel as menus (10px corners), with a short fade-and-pop entrance. Dialog buttons use the pill style.
 - Photos and video in posts get a double border: a tinted outer frame with the media inset inside its own hairline.
+- Menus with pictures (like "choose audience") show a small square image with left-aligned text, and their section headings are small muted labels.
+- An opened post uses a 32px avatar so it sits with the smaller name text.
 - Fades the timeline in when a post opens, and replaces X's loading spinner in the timeline with a pulsing skeleton post. Both respect reduced-motion settings.
 
 ## No layout shift

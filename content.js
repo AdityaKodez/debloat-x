@@ -287,6 +287,81 @@
     }
   };
 
+  // Explore keeps Today's News (as a plain "title … time" list) and the post feed.
+  // Trends, who to follow and their "show more" links are hidden.
+  const CELL_SELECTOR = '[data-testid="primaryColumn"] [data-testid="cellInnerDiv"]';
+  const HIDE_IN_EXPLORE = '[data-testid="trend"], [data-testid="UserCell"], a[href^="/i/connect_people"], a[href^="/i/trends"]';
+  const TIME_TEXT = /^(\d+)\s*(s|m|h|d|sec|secs|min|mins|minutes?|hours?|hrs?|days?)\b(\s+ago)?$|^(trending now|live)$/i;
+
+  const cellTexts = (cell) => {
+    const texts = [];
+    const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.parentElement?.closest('.dx-news, [data-testid^="UserAvatar"]')) continue;
+      const text = node.textContent.replace(/\s+/g, " ").trim();
+      if (text) texts.push(text);
+    }
+    return texts;
+  };
+
+  const shortTime = (text) => {
+    const match = text.match(TIME_TEXT);
+    if (!match) return "";
+    if (match[4]) return match[4].toLowerCase() === "live" ? "live" : "now";
+    return match[1] + match[2][0].toLowerCase();
+  };
+
+  const classifyExploreCell = (cell) => {
+    if (cell.querySelector("article")) return { kind: null };
+    if (cell.querySelector(HIDE_IN_EXPLORE)) return { kind: "hide" };
+    const heading = cell.querySelector('h2, [role="heading"]');
+    if (heading) return { kind: /news/i.test(heading.textContent) ? "news-head" : "hide" };
+    const texts = cellTexts(cell);
+    if (!texts.length) return { kind: null };
+    const time = texts.map(shortTime).find(Boolean) || "";
+    const title = texts.find((text) => text.length >= 16 && !TIME_TEXT.test(text) && text !== "·");
+    const target = cell.querySelector('[role="link"], a[href]');
+    return title && target ? { kind: "news", title, time, target } : { kind: "hide" };
+  };
+
+  const renderNews = (cell, { title, time, target }) => {
+    let row = cell.querySelector(":scope > .dx-news");
+    if (row && row.dataset.title === title && row.lastElementChild.textContent === time) return;
+    if (!row) {
+      row = document.createElement("a");
+      row.className = "dx-news";
+      const label = document.createElement("span");
+      label.className = "dx-news-title";
+      const meta = document.createElement("span");
+      meta.className = "dx-news-time";
+      row.append(label, meta);
+      row.addEventListener("click", (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        row.dxTarget?.click();
+      });
+      cell.append(row);
+    }
+    row.dxTarget = target;
+    row.dataset.title = title;
+    setAttr(row, "href", target.getAttribute("href") || "#");
+    setText(row.firstElementChild, title);
+    setText(row.lastElementChild, time);
+  };
+
+  const processExploreCell = (cell) => {
+    const result = classifyExploreCell(cell);
+    setAttr(cell, "data-dx-explore", result.kind);
+    if (result.kind === "news") renderNews(cell, result);
+    else cell.querySelector(":scope > .dx-news")?.remove();
+  };
+
+  const scanExplore = (cells) => {
+    if (root.dataset.dxRoute !== "explore") return;
+    for (const cell of cells) if (cell.isConnected) processExploreCell(cell);
+  };
+
   const scanAdded = (node) => {
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     if (node.matches(ARTICLE_SELECTOR)) {
@@ -306,7 +381,7 @@
     else for (const media of node.querySelectorAll(MEDIA_SELECTOR)) markMedia(media);
   };
 
-  const syncRoute = () => {
+  function syncRoute() {
     const path = location.pathname;
     const route =
       path === "/home"
@@ -318,8 +393,11 @@
             : POST_PATH.test(path)
               ? "post"
               : "page";
-    if (root.dataset.dxRoute !== route) root.dataset.dxRoute = route;
-  };
+    if (root.dataset.dxRoute !== route) {
+      root.dataset.dxRoute = route;
+      if (route === "explore") queueMicrotask(() => scanExplore(document.querySelectorAll(CELL_SELECTOR)));
+    }
+  }
 
   const sync = () => {
     syncRoute();
@@ -339,9 +417,20 @@
   const onMutations = (records) => {
     if (!enabled) return;
     sync();
+    const exploreCells = new Set();
+    const onExplore = root.dataset.dxRoute === "explore";
     for (const record of records) {
       for (const node of record.addedNodes) scanAdded(node);
+      if (!onExplore) continue;
+      const target = record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement;
+      const cell = target?.closest(CELL_SELECTOR);
+      if (cell) exploreCells.add(cell);
+      for (const node of record.addedNodes) {
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        for (const found of node.querySelectorAll(CELL_SELECTOR)) exploreCells.add(found);
+      }
     }
+    scanExplore(exploreCells);
   };
 
   const setEnabled = (value) => {
@@ -351,6 +440,7 @@
     if (enabled) {
       sync();
       if (document.body) scanAdded(document.body);
+      scanExplore(document.querySelectorAll(CELL_SELECTOR));
     }
   };
 
