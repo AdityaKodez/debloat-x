@@ -324,6 +324,7 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:is(:hove
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button * {
   color: var(--dx-muted) !important;
   font-size: 12.5px !important;
+  font-weight: 400 !important;
   line-height: 16px !important;
   text-transform: lowercase;
   transition: color var(--dx-ease);
@@ -414,8 +415,23 @@ html:not(.dx-off) #layers [role="menuitem"] * {
   text-transform: lowercase;
 }
 
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button :is(img, [data-testid^="UserAvatar"]) {
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button :is(img, [data-testid^="UserAvatar"]),
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button > div > :not(svg, :has(svg), [data-testid="pillLabel"], :has([data-testid="pillLabel"])) {
   display: none !important;
+}
+
+/* X's label is "<avatars> posted". With the avatars hidden, say what the pill does instead. */
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"],
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"] * {
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"]::after {
+  content: "new posts";
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
 }
 
 html:not(.dx-off) [role="tab"] * {
