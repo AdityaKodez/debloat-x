@@ -13,6 +13,7 @@
   const SEARCH_SELECTOR = '[data-testid="primaryColumn"] [data-testid="SearchBox_Search_Input"]';
   const ARTICLE_SELECTOR = 'article[data-testid="tweet"]';
   const UPSELL_SELECTOR = '[data-testid="primaryColumn"] a[href="/i/premium_sign_up"]';
+  const MEDIA_SELECTOR = 'article [data-testid="tweetPhoto"], article [data-testid="videoPlayer"]';
   const PROFILE_PATH = /^\/[A-Za-z0-9_]{1,15}$/;
   const POST_PATH = /^\/[A-Za-z0-9_]{1,15}\/status\/\d+/;
   // Pages that use X's full-width layout. Every other page gets the centered 600px column
@@ -272,6 +273,20 @@
     }
   };
 
+  // X draws the rounded border around a post's photos or video on an ancestor a few levels up.
+  // Mark that frame so CSS can give it the double border without relying on X's nesting depth.
+  const markMedia = (media) => {
+    let node = media.parentElement;
+    for (let depth = 0; node && depth < 8; depth += 1, node = node.parentElement) {
+      if (node.matches("article, [data-dx-media]")) return;
+      const style = getComputedStyle(node);
+      if (parseFloat(style.borderTopWidth) > 0 && parseFloat(style.borderTopLeftRadius) > 0) {
+        setAttr(node, "data-dx-media", "");
+        return;
+      }
+    }
+  };
+
   const scanAdded = (node) => {
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     if (node.matches(ARTICLE_SELECTOR)) {
@@ -287,6 +302,8 @@
     }
     if (node.matches(UPSELL_SELECTOR)) markUpsell(node);
     else for (const link of node.querySelectorAll(UPSELL_SELECTOR)) markUpsell(link);
+    if (node.matches(MEDIA_SELECTOR)) markMedia(node);
+    else for (const media of node.querySelectorAll(MEDIA_SELECTOR)) markMedia(media);
   };
 
   const syncRoute = () => {
