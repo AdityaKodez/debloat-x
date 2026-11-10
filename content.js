@@ -124,10 +124,6 @@
   function activate(key) {
     const item = ITEMS_BY_KEY.get(key);
     if (!item) return;
-    if (key === "explore") {
-      focusSearch();
-      return;
-    }
     const nativeTarget = item.native && document.querySelector(item.native);
     if (nativeTarget) {
       nativeTarget.click();
@@ -293,7 +289,7 @@
   // Explore keeps Today's News (as a plain "title … time" list) and the post feed.
   // Trends, who to follow and their "show more" links are hidden.
   const CELL_SELECTOR = '[data-testid="primaryColumn"] [data-testid="cellInnerDiv"]';
-  const HIDE_IN_EXPLORE = '[data-testid="trend"], [data-testid="UserCell"], a[href^="/i/connect_people"], a[href^="/i/trends"]';
+  const HIDE_IN_EXPLORE = '[data-testid="UserCell"], a[href^="/i/connect_people"], a[href^="/i/trends"]';
   const TIME_TEXT = /^(\d+)\s*(s|m|h|d|sec|secs|min|mins|minutes?|hours?|hrs?|days?)\b(\s+ago)?$|^(trending now|live)$/i;
 
   const cellTexts = (cell) => {
@@ -309,7 +305,7 @@
   };
 
   const shortTime = (text) => {
-    const match = text.match(TIME_TEXT);
+    const match = text.split("·", 1)[0].trim().match(TIME_TEXT);
     if (!match) return "";
     if (match[4]) return match[4].toLowerCase() === "live" ? "live" : "now";
     return match[1] + match[2][0].toLowerCase();
@@ -320,27 +316,39 @@
     if (cell.querySelector(HIDE_IN_EXPLORE)) return { kind: "hide" };
     const heading = cell.querySelector('h2, [role="heading"]');
     if (heading) return { kind: /news/i.test(heading.textContent) ? "news-head" : "hide" };
+    // X uses "trend" for both news stories and topics. Only topics have a More menu.
+    const trend = cell.querySelector('[data-testid="trend"]');
+    if (trend?.querySelector('button[aria-label="More"]')) return { kind: "hide" };
     const texts = cellTexts(cell);
-    if (!texts.length) return { kind: null };
+    // Empty section dividers survive after trends and recommendations are hidden.
+    // Keep loading indicators and controls while X is still populating a cell.
+    if (!texts.length) return { kind: cell.querySelector('[role="progressbar"], [aria-busy="true"], img, video, button, a[href]') ? null : "hide" };
     const time = texts.map(shortTime).find(Boolean) || "";
-    const title = texts.find((text) => text.length >= 16 && !TIME_TEXT.test(text) && text !== "·");
-    const target = cell.querySelector('[role="link"], a[href]');
+    const title = texts.find((text) => text.length >= 16 && !shortTime(text) && text !== "·");
+    const target = cell.querySelector('[role="link"]:not(.dx-news), a[href]:not(.dx-news)');
+    if (trend && !time) return { kind: "hide" };
     return title && target ? { kind: "news", title, time, target } : { kind: "hide" };
   };
 
   const renderNews = (cell, { title, time, target }) => {
     let row = cell.querySelector(":scope > .dx-news");
-    if (row && row.dataset.title === title && row.lastElementChild.textContent === time) return;
+    const href = target.getAttribute("href");
+    const tag = href ? "a" : "button";
+    if (row && row.localName !== tag) {
+      row.remove();
+      row = null;
+    }
     if (!row) {
-      row = document.createElement("a");
+      row = document.createElement(tag);
       row.className = "dx-news";
+      if (!href) row.type = "button";
       const label = document.createElement("span");
       label.className = "dx-news-title";
       const meta = document.createElement("span");
       meta.className = "dx-news-time";
       row.append(label, meta);
       row.addEventListener("click", (event) => {
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (event.button !== 0 || (row.hasAttribute("href") && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey))) return;
         event.preventDefault();
         row.dxTarget?.click();
       });
@@ -348,7 +356,7 @@
     }
     row.dxTarget = target;
     row.dataset.title = title;
-    setAttr(row, "href", target.getAttribute("href") || "#");
+    setAttr(row, "href", href);
     setText(row.firstElementChild, title);
     setText(row.lastElementChild, time);
   };
@@ -431,6 +439,7 @@
       if (cell) exploreCells.add(cell);
       for (const node of record.addedNodes) {
         if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        if (node.matches(CELL_SELECTOR)) exploreCells.add(node);
         for (const found of node.querySelectorAll(CELL_SELECTOR)) exploreCells.add(found);
       }
     }
@@ -463,7 +472,7 @@
   // Route changes update the route attribute synchronously, before X renders the next page.
   globalThis.navigation?.addEventListener?.("currententrychange", () => enabled && sync());
   window.addEventListener("popstate", () => enabled && sync());
-  new MutationObserver(onMutations).observe(root, { childList: true, subtree: true });
+  new MutationObserver(onMutations).observe(root, { childList: true, characterData: true, subtree: true });
   syncRoute();
   if (enabled) sync();
 
