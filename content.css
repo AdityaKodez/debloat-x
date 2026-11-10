@@ -534,6 +534,20 @@ html:not(.dx-off) article [role="group"] {
 html:not(.dx-off) article [role="group"] > div {
   flex: 0 0 auto !important;
   margin: 0 !important;
+  padding: 0 !important;
+}
+
+html:not(.dx-off) article [role="group"] > div,
+html:not(.dx-off) article [role="group"] :is(a, button) {
+  display: flex !important;
+  align-items: center !important;
+}
+
+html:not(.dx-off) article [role="group"] :is(a, button) {
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"] {
@@ -546,6 +560,7 @@ html:not(.dx-off) article [role="group"] [dir="ltr"],
 html:not(.dx-off) article [role="group"] [dir="ltr"] * {
   font-size: 12.5px !important;
   line-height: 16px !important;
+  text-transform: lowercase;
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"] > div:first-child:has(svg) {
@@ -554,6 +569,10 @@ html:not(.dx-off) article [role="group"] [dir="ltr"] > div:first-child:has(svg) 
 
 html:not(.dx-off) article [role="group"] [dir="ltr"] > div + div {
   padding: 0 0 0 4px !important;
+}
+
+html:not(.dx-off) article [role="group"] [dir="ltr"] > div + div:not(:has(span:not(:empty))) {
+  display: none !important;
 }
 
 html:not(.dx-off) article [role="group"] button:hover [dir="ltr"],
@@ -610,9 +629,7 @@ html:not(.dx-off) article [role="group"] button[aria-label="Share post"] [dir="l
   content: "share";
 }
 
-html:not(.dx-off) article [role="group"] a[href$="/analytics"] [dir="ltr"]::after {
-  order: 1;
-  margin-left: 4px;
+html:not(.dx-off) article [role="group"] a[href$="/analytics"] [dir="ltr"]::before {
   content: "views";
 }
 
@@ -797,9 +814,16 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     padding: 8px 12px !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] [data-testid^="UserAvatar-Container"] {
+  html:not(.dx-off) :is([data-testid="typeaheadRecentSearchesItem"], [data-testid="typeaheadResult"]) [data-testid^="UserAvatar-Container"] {
     width: 28px !important;
     height: 28px !important;
+  }
+
+  html:not(.dx-off) :is([data-testid="typeaheadRecentSearchesItem"], [data-testid="typeaheadResult"]) div:has(> [data-testid^="UserAvatar-Container"]) {
+    flex-basis: 28px !important;
+    width: 28px !important;
+    min-width: 0 !important;
+    margin-right: 10px !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"] {
@@ -1306,4 +1330,34 @@ html:not(.dx-off) .dx-news-time {
   font-size: 13px;
   line-height: 22px;
   font-variant-numeric: tabular-nums;
+}
+
+/* Page headers ("post", profile name, lists): the same scale as the rest of the UI,
+   with a plain back arrow instead of a circle button. */
+html:not(.dx-off) [data-testid="primaryColumn"] h2[role="heading"]:not(article *, [data-testid="cellInnerDiv"] *),
+html:not(.dx-off) [data-testid="primaryColumn"] h2[role="heading"]:not(article *, [data-testid="cellInnerDiv"] *) * {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
+  text-transform: lowercase;
+}
+
+html:not(.dx-off) [data-testid="app-bar-back"] {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  background-color: transparent !important;
+  color: var(--dx-muted) !important;
+  outline: none !important;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="app-bar-back"] svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+html:not(.dx-off) [data-testid="app-bar-back"]:is(:hover, :focus-visible) {
+  color: var(--dx-fg) !important;
 }

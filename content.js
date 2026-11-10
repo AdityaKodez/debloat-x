@@ -19,6 +19,9 @@
   // Pages that use X's full-width layout. Every other page gets the centered 600px column
   // from the first frame, so the column never resizes when the sidebar mounts.
   const WIDE_ROUTES = ["/settings", "/i/chat", "/messages", "/i/grok"];
+  // Modal URLs open over the current page (write, photo viewer, display settings).
+  // They keep the page's route so the page behind the modal does not change layout.
+  const MODAL_PATH = /^\/compose\/|^\/i\/(display|keyboard_shortcuts)\b|\/status\/\d+\/(photo|video|analytics)\b/;
 
   // Local storage is synchronous, so the off state is known before X renders anything.
   // chrome.storage stays the source of truth and refreshes this mirror below.
@@ -383,6 +386,7 @@
 
   function syncRoute() {
     const path = location.pathname;
+    if (root.dataset.dxRoute && MODAL_PATH.test(path)) return;
     const route =
       path === "/home"
         ? "home"

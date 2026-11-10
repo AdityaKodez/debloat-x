@@ -21,7 +21,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 - Search suggestions and recent searches use a flat, shadowless panel with compact text rows.
 - Hides the right sidebar, Grok, the chat drawer, Premium upsell cards and promoted posts.
 - Keeps only the "for you" and "following" tabs on home and hides "who to follow" blocks there.
-- Uses smaller type, lowercase tabs, and text actions on posts (`reply 16  repost 5  like 267  keep  share`).
+- Uses smaller type, lowercase tabs and page headers, a plain back arrow, and text actions on posts (`reply 16  repost 5  like 267  views 4.7k  keep  share`).
 - Restyles scrollbars (thin, arrowless, visible only on hover), the post "…" menu (text-only items), and the "See new posts" pill (a thin text arrow and "new posts" instead of avatars).
 - Every control follows one interaction style: text goes from muted to full color on hover, rows get the same faint highlight, keyboard focus underlines the label, and all transitions take 120ms. Menus and the search dropdown are the same flat, square panel.
 - New post (the modal and the composer on home) matches the timeline: 14px text, a lowercase placeholder, text tools (`media  gif  poll  emoji  schedule  location`), and a `post` pill that fills in once there is something to post. The audience picker is a quiet outline pill.
@@ -29,6 +29,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 - Photos and video in posts get a double border: a tinted outer frame with the media inset inside its own hairline.
 - Menus with pictures (like "choose audience") show a small square image with left-aligned text, and their section headings are small muted labels.
 - An opened post uses a 32px avatar so it sits with the smaller name text.
+- Opening write, a photo or display settings keeps the page behind it as it was, so home doesn't change layout under the modal.
 - Fades the timeline in when a post opens, and replaces X's loading spinner in the timeline with a pulsing skeleton post. Both respect reduced-motion settings.
 
 ## No layout shift
