@@ -25,7 +25,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 - Restyles scrollbars (thin, arrowless, visible only on hover), the post "…" menu (text-only items), and the "See new posts" pill.
 - Every control follows one interaction style: text goes from muted to full color on hover, rows get the same faint highlight, keyboard focus underlines the label, and all transitions take 120ms. Menus and the search dropdown are the same flat, square panel.
 - New post (the modal and the composer on home) matches the timeline: 14px text, a lowercase placeholder, text tools (`media  gif  poll  emoji  schedule  location`), and a `post` pill that fills in once there is something to post. The audience picker is a quiet outline pill.
-- Confirmation dialogs, toasts and profile hover cards use the same flat panel as menus (4px corners), with a short fade-and-pop entrance. Dialog buttons use the pill style.
+- Confirmation dialogs, toasts and profile hover cards use the same flat panel as menus (10px corners), with a short fade-and-pop entrance. Dialog buttons use the pill style.
 - Fades the timeline in when a post opens, and replaces X's loading spinner in the timeline with a pulsing skeleton post. Both respect reduced-motion settings.
 
 ## No layout shift

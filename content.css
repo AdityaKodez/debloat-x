@@ -18,8 +18,8 @@ html:not(.dx-off) {
   --dx-line-strong: color-mix(in srgb, var(--dx-muted) 55%, transparent);
   --dx-hover: color-mix(in srgb, var(--dx-fg) 6%, transparent);
   --dx-ease: 120ms ease;
-  --dx-radius: 4px;
-  --dx-radius-row: 2px;
+  --dx-radius: 10px;
+  --dx-radius-row: 6px;
   --dx-mask: color-mix(in srgb, var(--dx-pill-bg) 70%, transparent);
   --dx-nav-w: 220px;
   --dx-font: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
