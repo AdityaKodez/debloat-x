@@ -14,6 +14,10 @@ html:not(.dx-off) {
   --dx-pill-bg: #000;
   --dx-menu-bg: #0d0d0e;
   --dx-skel: color-mix(in srgb, var(--dx-muted) 24%, transparent);
+  --dx-line: color-mix(in srgb, var(--dx-muted) 28%, transparent);
+  --dx-line-strong: color-mix(in srgb, var(--dx-muted) 55%, transparent);
+  --dx-hover: color-mix(in srgb, var(--dx-fg) 6%, transparent);
+  --dx-ease: 120ms ease;
   --dx-nav-w: 220px;
   --dx-font: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
@@ -59,7 +63,7 @@ html:not(.dx-off) ::-webkit-scrollbar-thumb {
   border-radius: 8px;
   background-color: transparent;
   background-clip: padding-box;
-  transition: background-color 120ms ease;
+  transition: background-color var(--dx-ease);
 }
 
 html:not(.dx-off):hover::-webkit-scrollbar-thumb,
@@ -144,6 +148,10 @@ html:not(.dx-off) #dx-nav .dx-logo {
   color: var(--dx-fg);
 }
 
+html:not(.dx-off) #dx-nav .dx-logo:focus-visible {
+  box-shadow: 0 5px 0 -4px currentColor;
+}
+
 html:not(.dx-off) #dx-nav .dx-logo svg {
   width: 19px;
   height: 19px;
@@ -164,7 +172,7 @@ html:not(.dx-off) #dx-nav .dx-item {
   align-items: baseline;
   justify-content: space-between;
   padding: 8px 0;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
 html:not(.dx-off) #dx-nav .dx-item:hover,
@@ -269,23 +277,39 @@ html:not(.dx-off)[data-dx-route="post"] [data-testid="primaryColumn"] {
 
 html:not(.dx-off) [role="tab"] {
   text-transform: lowercase;
+  background-color: transparent !important;
+  outline: none !important;
+}
+
+html:not(.dx-off) [role="tab"] [dir="ltr"] {
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [role="tab"]:is(:hover, :focus-visible) [dir="ltr"] {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [role="tab"]:focus-visible [dir="ltr"] span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button {
   min-height: 0 !important;
   padding: 6px 12px !important;
-  border: 1px solid color-mix(in srgb, var(--dx-muted) 28%, transparent) !important;
+  border: 1px solid var(--dx-line) !important;
   border-radius: 999px !important;
   background-color: var(--dx-pill-bg) !important;
   box-shadow: none !important;
+  outline: none !important;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease;
+    background-color var(--dx-ease),
+    border-color var(--dx-ease);
 }
 
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:hover {
-  border-color: color-mix(in srgb, var(--dx-muted) 55%, transparent) !important;
-  background-color: color-mix(in srgb, var(--dx-fg) 8%, var(--dx-pill-bg)) !important;
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:is(:hover, :focus-visible) {
+  border-color: var(--dx-line-strong) !important;
+  background-color: color-mix(in srgb, var(--dx-fg) 6%, var(--dx-pill-bg)) !important;
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button * {
@@ -293,10 +317,10 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button * {
   font-size: 12.5px !important;
   line-height: 16px !important;
   text-transform: lowercase;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:hover * {
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:is(:hover, :focus-visible) * {
   color: var(--dx-fg) !important;
 }
 
@@ -332,9 +356,9 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-te
 
 html:not(.dx-off) #layers [role="menu"] {
   min-width: 220px !important;
-  padding: 4px !important;
-  border: 1px solid color-mix(in srgb, var(--dx-muted) 28%, transparent) !important;
-  border-radius: 4px !important;
+  padding: 0 !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 0 !important;
   background-color: var(--dx-menu-bg) !important;
   box-shadow: none !important;
   transform-origin: top right;
@@ -352,15 +376,16 @@ html:not(.dx-off) #layers [role="menuitem"] {
   display: flex !important;
   align-items: center !important;
   min-height: 0 !important;
-  padding: 7px 10px !important;
-  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
   background-color: transparent !important;
-  transition: background-color 100ms ease;
+  outline: none !important;
+  transition: background-color var(--dx-ease);
 }
 
 html:not(.dx-off) #layers [role="menuitem"]:hover,
 html:not(.dx-off) #layers [role="menuitem"]:focus-visible {
-  background-color: color-mix(in srgb, var(--dx-fg) 7%, transparent) !important;
+  background-color: var(--dx-hover) !important;
 }
 
 html:not(.dx-off) #layers [role="menuitem"] > div:first-child:has(> svg) {
@@ -413,7 +438,7 @@ html:not(.dx-off) article [role="group"] > div {
 html:not(.dx-off) article [role="group"] [dir="ltr"] {
   align-items: baseline !important;
   color: var(--dx-muted) !important;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"],
@@ -435,6 +460,15 @@ html:not(.dx-off) article [role="group"] a:hover [dir="ltr"],
 html:not(.dx-off) article [role="group"] button:focus-visible [dir="ltr"],
 html:not(.dx-off) article [role="group"] a:focus-visible [dir="ltr"] {
   color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) article [role="group"] :is(button, a):focus-visible [dir="ltr"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html:not(.dx-off) article [role="group"] :is(button, a):focus-visible {
+  outline: none !important;
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"]::before,
@@ -515,6 +549,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+    transition: border-color var(--dx-ease);
   }
 
   html:not(.dx-off) form[role="search"]:focus-within > div > div {
@@ -525,7 +560,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     width: 15px !important;
     height: 15px !important;
     fill: var(--dx-muted) !important;
-    transition: fill 120ms ease;
+    transition: fill var(--dx-ease);
   }
 
   html:not(.dx-off) form[role="search"]:focus-within [data-testid="SearchBox_Search_Input_label"] > div:first-child svg {
@@ -554,6 +589,8 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     color: var(--dx-muted) !important;
+    outline: none !important;
+    transition: color var(--dx-ease);
   }
 
   html:not(.dx-off) [data-testid="clearButton"] > div {
@@ -566,8 +603,13 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     line-height: 16px;
   }
 
-  html:not(.dx-off) [data-testid="clearButton"]:hover {
+  html:not(.dx-off) [data-testid="clearButton"]:is(:hover, :focus-visible) {
     color: var(--dx-fg) !important;
+  }
+
+  html:not(.dx-off) [data-testid="clearButton"]:focus-visible::after {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   html:not(.dx-off) [data-testid="settingsAppBar"] {
@@ -583,7 +625,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
   }
 
   html:not(.dx-off) form[role="search"] div:has(> [role="listbox"]) {
-    border: 1px solid var(--dx-faint) !important;
+    border: 1px solid var(--dx-line) !important;
     border-radius: 0 !important;
     background: var(--dx-menu-bg) !important;
     box-shadow: none !important;
@@ -591,7 +633,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] {
     padding: 10px 12px 6px !important;
-    border-bottom: 1px solid color-mix(in srgb, var(--dx-faint) 55%, transparent) !important;
+    border-bottom: 1px solid var(--dx-line) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] span {
@@ -608,6 +650,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
+    outline: none !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button * {
@@ -615,18 +658,32 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     line-height: 16px !important;
     color: var(--dx-muted) !important;
     text-transform: lowercase;
+    transition: color var(--dx-ease);
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:hover * {
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:is(:hover, :focus-visible) * {
     color: var(--dx-fg) !important;
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:focus-visible span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] {
     padding: 0 !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"]:hover {
-    background: color-mix(in srgb, var(--dx-fg) 6%, transparent) !important;
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"],
+  html:not(.dx-off) [data-testid="typeaheadResult"] button {
+    outline: none !important;
+    transition: background-color var(--dx-ease);
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"]:is(:hover, :focus-within),
+  html:not(.dx-off) [data-testid="typeaheadResult"] button:is(:hover, :focus-visible),
+  html:not(.dx-off) [role="listbox"] [role="option"][aria-selected="true"] :is([data-testid="typeaheadRecentSearchesItem"], [data-testid="typeaheadResult"] button) {
+    background: var(--dx-hover) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] > div {
@@ -652,10 +709,15 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     color: var(--dx-muted) !important;
+    outline: none !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"]:hover {
-    color: var(--dx-fg) !important;
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"] svg {
+    transition: fill var(--dx-ease);
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"]:is(:hover, :focus-visible) svg {
+    fill: var(--dx-fg) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] svg,
@@ -675,7 +737,4 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     padding: 8px 12px !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadResult"] button:hover {
-    background: color-mix(in srgb, var(--dx-fg) 6%, transparent) !important;
-  }
 }

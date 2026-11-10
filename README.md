@@ -23,6 +23,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 - Keeps only the "for you" and "following" tabs on home and hides "who to follow" blocks there.
 - Uses smaller type, lowercase tabs, and text actions on posts (`reply 16  repost 5  like 267  keep  share`).
 - Restyles scrollbars (thin, arrowless, visible only on hover), the post "…" menu (text-only items), and the "See new posts" pill.
+- Every control follows one interaction style: text goes from muted to full color on hover, rows get the same faint highlight, keyboard focus underlines the label, and all transitions take 120ms. Menus and the search dropdown are the same flat, square panel.
 - Fades the timeline in when a post opens, and replaces X's loading spinner in the timeline with a pulsing skeleton post. Both respect reduced-motion settings.
 
 ## No layout shift
