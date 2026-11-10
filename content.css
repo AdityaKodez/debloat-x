@@ -18,6 +18,8 @@ html:not(.dx-off) {
   --dx-line-strong: color-mix(in srgb, var(--dx-muted) 55%, transparent);
   --dx-hover: color-mix(in srgb, var(--dx-fg) 6%, transparent);
   --dx-ease: 120ms ease;
+  --dx-radius: 4px;
+  --dx-radius-row: 2px;
   --dx-mask: color-mix(in srgb, var(--dx-pill-bg) 70%, transparent);
   --dx-nav-w: 220px;
   --dx-font: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -363,9 +365,9 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-te
 
 html:not(.dx-off) #layers [role="menu"] {
   min-width: 220px !important;
-  padding: 0 !important;
+  padding: 4px !important;
   border: 1px solid var(--dx-line) !important;
-  border-radius: 0 !important;
+  border-radius: var(--dx-radius) !important;
   background-color: var(--dx-menu-bg) !important;
   box-shadow: none !important;
   transform-origin: top right;
@@ -383,8 +385,8 @@ html:not(.dx-off) #layers [role="menuitem"] {
   display: flex !important;
   align-items: center !important;
   min-height: 0 !important;
-  padding: 8px 12px !important;
-  border-radius: 0 !important;
+  padding: 8px 10px !important;
+  border-radius: var(--dx-radius-row) !important;
   background-color: transparent !important;
   outline: none !important;
   transition: background-color var(--dx-ease);
@@ -633,7 +635,8 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
 
   html:not(.dx-off) form[role="search"] div:has(> [role="listbox"]) {
     border: 1px solid var(--dx-line) !important;
-    border-radius: 0 !important;
+    border-radius: var(--dx-radius) !important;
+    overflow: hidden !important;
     background: var(--dx-menu-bg) !important;
     box-shadow: none !important;
   }
@@ -770,7 +773,7 @@ html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="twe
 html:not(.dx-off) [data-testid="confirmationSheetDialog"],
 html:not(.dx-off) [data-testid="HoverCard"] {
   border: 1px solid var(--dx-line) !important;
-  border-radius: 0 !important;
+  border-radius: var(--dx-radius) !important;
   background-color: var(--dx-menu-bg) !important;
   box-shadow: none !important;
   transform-origin: top center;
@@ -778,7 +781,7 @@ html:not(.dx-off) [data-testid="HoverCard"] {
 }
 
 html:not(.dx-off) #layers div:has(> [data-testid="HoverCard"]) {
-  border-radius: 0 !important;
+  border-radius: var(--dx-radius) !important;
   box-shadow: none !important;
 }
 
@@ -807,7 +810,7 @@ html:not(.dx-off) [data-testid="confirmationSheetDialog"] :is(p, [dir="ltr"]:not
 html:not(.dx-off) [data-testid="confirmationSheetDialog"] button,
 html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]) {
   min-height: 0 !important;
-  padding: 6px 14px !important;
+  padding: 7px 16px !important;
   border: 1px solid var(--dx-line) !important;
   border-radius: 999px !important;
   background-color: transparent !important;
@@ -829,9 +832,9 @@ html:not(.dx-off) [data-testid="confirmationSheetDialog"] button *,
 html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]),
 html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]) * {
   color: var(--dx-muted) !important;
-  font-size: 12.5px !important;
+  font-size: 13px !important;
   font-weight: 400 !important;
-  line-height: 16px !important;
+  line-height: 18px !important;
   text-transform: lowercase;
   transition: color var(--dx-ease);
 }
@@ -849,21 +852,45 @@ html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInli
 }
 
 html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):is(:disabled, [aria-disabled="true"]) {
-  border-color: color-mix(in srgb, var(--dx-muted) 16%, transparent) !important;
+  border-color: var(--dx-line) !important;
 }
 
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):is(:disabled, [aria-disabled="true"]),
 html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):is(:disabled, [aria-disabled="true"]) * {
-  color: var(--dx-faint) !important;
+  color: var(--dx-muted) !important;
 }
 
-html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible),
-html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+/* The primary action is the one filled pill: post when ready, and the confirm button. */
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"] {
+  border-color: var(--dx-fg) !important;
+  background-color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]),
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]) *,
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"],
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"] * {
+  color: var(--dx-pill-bg) !important;
+}
+
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"]:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--dx-fg) 85%, var(--dx-pill-bg)) !important;
+  background-color: color-mix(in srgb, var(--dx-fg) 85%, var(--dx-pill-bg)) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"]:is(:hover, :focus-visible) * {
+  color: var(--dx-pill-bg) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:not([data-testid="confirmationSheetConfirm"]):is(:hover, :focus-visible) {
   border-color: var(--dx-line-strong) !important;
   background-color: var(--dx-hover) !important;
 }
 
-html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible),
-html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible) * {
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:not([data-testid="confirmationSheetConfirm"]):is(:hover, :focus-visible),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:not([data-testid="confirmationSheetConfirm"]):is(:hover, :focus-visible) * {
   color: var(--dx-fg) !important;
 }
 
@@ -877,7 +904,7 @@ html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInli
 html:not(.dx-off) [data-testid="toast"] {
   padding: 10px 14px !important;
   border: 1px solid var(--dx-line) !important;
-  border-radius: 0 !important;
+  border-radius: var(--dx-radius) !important;
   background-color: var(--dx-menu-bg) !important;
   box-shadow: none !important;
   animation: dx-lift 160ms cubic-bezier(0.2, 0, 0, 1);
@@ -920,8 +947,8 @@ html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="twe
 }
 
 html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]) [data-testid="app-bar-close"] svg {
-  width: 16px !important;
-  height: 16px !important;
+  width: 18px !important;
+  height: 18px !important;
   color: inherit !important;
   fill: currentColor !important;
 }
@@ -935,9 +962,9 @@ html:not(.dx-off) [data-testid="unsentButton"] * {
   min-height: 0 !important;
   background-color: transparent !important;
   color: var(--dx-muted) !important;
-  font-size: 12.5px !important;
+  font-size: 13px !important;
   font-weight: 400 !important;
-  line-height: 16px !important;
+  line-height: 18px !important;
   text-transform: lowercase;
   outline: none !important;
   transition: color var(--dx-ease);
@@ -952,8 +979,8 @@ html:not(.dx-off) [data-testid="tweetTextarea_0"],
 html:not(.dx-off) [data-testid="tweetTextarea_0"] *,
 html:not(.dx-off) :has(> [data-testid="tweetTextarea_0"]) .public-DraftEditorPlaceholder-inner,
 html:not(.dx-off) .public-DraftEditorPlaceholder-inner {
-  font-size: 14px !important;
-  line-height: 20px !important;
+  font-size: 15px !important;
+  line-height: 22px !important;
 }
 
 html:not(.dx-off) [data-testid="tweetTextarea_0"] {
@@ -968,16 +995,82 @@ html:not(.dx-off) .public-DraftEditorPlaceholder-inner {
 html:not(.dx-off) :is([data-testid="primaryColumn"], #layers) [aria-label$="can reply"],
 html:not(.dx-off) :is([data-testid="primaryColumn"], #layers) [aria-label$="can reply"] * {
   color: var(--dx-muted) !important;
-  font-size: 12.5px !important;
+  font-size: 13px !important;
   font-weight: 400 !important;
-  line-height: 16px !important;
+  line-height: 18px !important;
   text-transform: lowercase;
 }
 
+html:not(.dx-off) :is([data-testid="primaryColumn"], #layers) [aria-label$="can reply"] svg {
+  width: 14px !important;
+  height: 14px !important;
+  fill: currentColor !important;
+}
+
+/* Audience picker ("Everyone"): a quiet outline pill instead of blue bold text. */
+html:not(.dx-off) [aria-label="Choose audience"] {
+  min-height: 0 !important;
+  padding: 3px 10px !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 999px !important;
+  background-color: transparent !important;
+  outline: none !important;
+  transition:
+    background-color var(--dx-ease),
+    border-color var(--dx-ease);
+}
+
+html:not(.dx-off) [aria-label="Choose audience"],
+html:not(.dx-off) [aria-label="Choose audience"] * {
+  color: var(--dx-muted) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+  text-transform: lowercase;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [aria-label="Choose audience"] svg {
+  width: 13px !important;
+  height: 13px !important;
+  fill: currentColor !important;
+}
+
+html:not(.dx-off) [aria-label="Choose audience"]:is(:hover, :focus-visible) {
+  border-color: var(--dx-line-strong) !important;
+  background-color: var(--dx-hover) !important;
+}
+
+html:not(.dx-off) [aria-label="Choose audience"]:is(:hover, :focus-visible),
+html:not(.dx-off) [aria-label="Choose audience"]:is(:hover, :focus-visible) * {
+  color: var(--dx-fg) !important;
+}
+
 /* Composer tools become text, like the post actions. */
+html:not(.dx-off) [data-testid="toolBar"] {
+  align-items: center !important;
+}
+
 html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] {
-  gap: 14px !important;
-  align-items: baseline !important;
+  gap: 16px !important;
+  align-items: center !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] > * {
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] > :has([data-testid="grokImgGen"]) {
+  display: none !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]) svg {
+  width: 15px !important;
+  height: 15px !important;
+  color: inherit !important;
+  fill: currentColor !important;
 }
 
 html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]) {
@@ -1012,8 +1105,9 @@ html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="bu
 }
 
 html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"])::before {
-  font-size: 12.5px;
-  line-height: 16px;
+  color: inherit;
+  font-size: 13px;
+  line-height: 18px;
 }
 
 html:not(.dx-off) [data-testid="toolBar"] [aria-label="Add photos or video"]::before {
