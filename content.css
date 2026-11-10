@@ -14,6 +14,11 @@ html:not(.dx-off) {
   --dx-pill-bg: #000;
   --dx-menu-bg: #0d0d0e;
   --dx-skel: color-mix(in srgb, var(--dx-muted) 24%, transparent);
+  --dx-line: color-mix(in srgb, var(--dx-muted) 28%, transparent);
+  --dx-line-strong: color-mix(in srgb, var(--dx-muted) 55%, transparent);
+  --dx-hover: color-mix(in srgb, var(--dx-fg) 6%, transparent);
+  --dx-ease: 120ms ease;
+  --dx-mask: color-mix(in srgb, var(--dx-pill-bg) 70%, transparent);
   --dx-nav-w: 220px;
   --dx-font: Inter, "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
@@ -59,7 +64,7 @@ html:not(.dx-off) ::-webkit-scrollbar-thumb {
   border-radius: 8px;
   background-color: transparent;
   background-clip: padding-box;
-  transition: background-color 120ms ease;
+  transition: background-color var(--dx-ease);
 }
 
 html:not(.dx-off):hover::-webkit-scrollbar-thumb,
@@ -124,6 +129,7 @@ html:not(.dx-off) #dx-nav {
   box-sizing: border-box;
   width: var(--dx-nav-w);
   height: 100vh;
+  overflow-y: auto;
   padding: 26px 24px 24px 36px;
   flex-direction: column;
   color: var(--dx-muted);
@@ -142,6 +148,10 @@ html:not(.dx-off) #dx-nav .dx-logo {
   align-self: flex-start;
   margin: 0 0 50px;
   color: var(--dx-fg);
+}
+
+html:not(.dx-off) #dx-nav .dx-logo:focus-visible {
+  box-shadow: 0 5px 0 -4px currentColor;
 }
 
 html:not(.dx-off) #dx-nav .dx-logo svg {
@@ -164,7 +174,7 @@ html:not(.dx-off) #dx-nav .dx-item {
   align-items: baseline;
   justify-content: space-between;
   padding: 8px 0;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
 html:not(.dx-off) #dx-nav .dx-item:hover,
@@ -207,7 +217,7 @@ html:not(.dx-off) [data-testid="cellInnerDiv"] > div {
   border-bottom-color: transparent !important;
 }
 
-html:not(.dx-off)[data-dx-route="home"] [role="tablist"] > :nth-child(n + 3),
+html:not(.dx-off)[data-dx-route="home"] [role="tablist"]:not([data-testid="toolBar"] *) > :nth-child(n + 3),
 html:not(.dx-off)[data-dx-route="home"] [data-testid="ScrollSnap-prevButtonWrapper"],
 html:not(.dx-off)[data-dx-route="home"] [data-testid="ScrollSnap-nextButtonWrapper"],
 html:not(.dx-off)[data-dx-route="home"] [data-testid="cellInnerDiv"]:has([data-testid="UserCell"]),
@@ -221,7 +231,7 @@ html:not(.dx-off) [data-testid="primaryColumn"] div:has(> [role="progressbar"][a
   justify-content: flex-start !important;
 }
 
-html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *) {
+html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:not([aria-valuenow]):has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *) {
   display: block !important;
   box-sizing: border-box !important;
   width: 100% !important;
@@ -238,7 +248,7 @@ html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:has(svg cir
   animation: dx-skeleton 1.4s ease-in-out infinite;
 }
 
-html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *) > * {
+html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:not([aria-valuenow]):has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *) > * {
   display: none !important;
 }
 
@@ -260,32 +270,53 @@ html:not(.dx-off)[data-dx-route="post"] [data-testid="primaryColumn"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *),
+  html:not(.dx-off) [data-testid="primaryColumn"] [role="progressbar"]:not([aria-valuenow]):has(svg circle):not(:is(article, button, [data-testid="tweetPhoto"], [role="dialog"], [role="menu"]) *),
   html:not(.dx-off)[data-dx-route="post"] [data-testid="primaryColumn"],
-  html:not(.dx-off) #layers [role="menu"] {
+  html:not(.dx-off) #layers [role="menu"],
+  html:not(.dx-off) #layers [data-testid="mask"],
+  html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]),
+  html:not(.dx-off) [data-testid="confirmationSheetDialog"],
+  html:not(.dx-off) [data-testid="toast"],
+  html:not(.dx-off) [data-testid="HoverCard"] {
     animation: none;
   }
 }
 
 html:not(.dx-off) [role="tab"] {
   text-transform: lowercase;
+  background-color: transparent !important;
+  outline: none !important;
+}
+
+html:not(.dx-off) [role="tab"] [dir="ltr"] {
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [role="tab"]:is(:hover, :focus-visible) [dir="ltr"] {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [role="tab"]:focus-visible [dir="ltr"] span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button {
   min-height: 0 !important;
   padding: 6px 12px !important;
-  border: 1px solid color-mix(in srgb, var(--dx-muted) 28%, transparent) !important;
+  border: 1px solid var(--dx-line) !important;
   border-radius: 999px !important;
   background-color: var(--dx-pill-bg) !important;
   box-shadow: none !important;
+  outline: none !important;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease;
+    background-color var(--dx-ease),
+    border-color var(--dx-ease);
 }
 
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:hover {
-  border-color: color-mix(in srgb, var(--dx-muted) 55%, transparent) !important;
-  background-color: color-mix(in srgb, var(--dx-fg) 8%, var(--dx-pill-bg)) !important;
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:is(:hover, :focus-visible) {
+  border-color: var(--dx-line-strong) !important;
+  background-color: color-mix(in srgb, var(--dx-fg) 6%, var(--dx-pill-bg)) !important;
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button * {
@@ -293,10 +324,10 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button * {
   font-size: 12.5px !important;
   line-height: 16px !important;
   text-transform: lowercase;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:hover * {
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button:is(:hover, :focus-visible) * {
   color: var(--dx-fg) !important;
 }
 
@@ -332,9 +363,9 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-te
 
 html:not(.dx-off) #layers [role="menu"] {
   min-width: 220px !important;
-  padding: 4px !important;
-  border: 1px solid color-mix(in srgb, var(--dx-muted) 28%, transparent) !important;
-  border-radius: 4px !important;
+  padding: 0 !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 0 !important;
   background-color: var(--dx-menu-bg) !important;
   box-shadow: none !important;
   transform-origin: top right;
@@ -352,15 +383,16 @@ html:not(.dx-off) #layers [role="menuitem"] {
   display: flex !important;
   align-items: center !important;
   min-height: 0 !important;
-  padding: 7px 10px !important;
-  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
   background-color: transparent !important;
-  transition: background-color 100ms ease;
+  outline: none !important;
+  transition: background-color var(--dx-ease);
 }
 
 html:not(.dx-off) #layers [role="menuitem"]:hover,
 html:not(.dx-off) #layers [role="menuitem"]:focus-visible {
-  background-color: color-mix(in srgb, var(--dx-fg) 7%, transparent) !important;
+  background-color: var(--dx-hover) !important;
 }
 
 html:not(.dx-off) #layers [role="menuitem"] > div:first-child:has(> svg) {
@@ -413,7 +445,7 @@ html:not(.dx-off) article [role="group"] > div {
 html:not(.dx-off) article [role="group"] [dir="ltr"] {
   align-items: baseline !important;
   color: var(--dx-muted) !important;
-  transition: color 120ms ease;
+  transition: color var(--dx-ease);
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"],
@@ -435,6 +467,15 @@ html:not(.dx-off) article [role="group"] a:hover [dir="ltr"],
 html:not(.dx-off) article [role="group"] button:focus-visible [dir="ltr"],
 html:not(.dx-off) article [role="group"] a:focus-visible [dir="ltr"] {
   color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) article [role="group"] :is(button, a):focus-visible [dir="ltr"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html:not(.dx-off) article [role="group"] :is(button, a):focus-visible {
+  outline: none !important;
 }
 
 html:not(.dx-off) article [role="group"] [dir="ltr"]::before,
@@ -515,6 +556,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+    transition: border-color var(--dx-ease);
   }
 
   html:not(.dx-off) form[role="search"]:focus-within > div > div {
@@ -525,7 +567,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     width: 15px !important;
     height: 15px !important;
     fill: var(--dx-muted) !important;
-    transition: fill 120ms ease;
+    transition: fill var(--dx-ease);
   }
 
   html:not(.dx-off) form[role="search"]:focus-within [data-testid="SearchBox_Search_Input_label"] > div:first-child svg {
@@ -554,6 +596,8 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     color: var(--dx-muted) !important;
+    outline: none !important;
+    transition: color var(--dx-ease);
   }
 
   html:not(.dx-off) [data-testid="clearButton"] > div {
@@ -566,8 +610,13 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     line-height: 16px;
   }
 
-  html:not(.dx-off) [data-testid="clearButton"]:hover {
+  html:not(.dx-off) [data-testid="clearButton"]:is(:hover, :focus-visible) {
     color: var(--dx-fg) !important;
+  }
+
+  html:not(.dx-off) [data-testid="clearButton"]:focus-visible::after {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   html:not(.dx-off) [data-testid="settingsAppBar"] {
@@ -583,7 +632,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
   }
 
   html:not(.dx-off) form[role="search"] div:has(> [role="listbox"]) {
-    border: 1px solid var(--dx-faint) !important;
+    border: 1px solid var(--dx-line) !important;
     border-radius: 0 !important;
     background: var(--dx-menu-bg) !important;
     box-shadow: none !important;
@@ -591,7 +640,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] {
     padding: 10px 12px 6px !important;
-    border-bottom: 1px solid color-mix(in srgb, var(--dx-faint) 55%, transparent) !important;
+    border-bottom: 1px solid var(--dx-line) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] span {
@@ -608,6 +657,7 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
+    outline: none !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button * {
@@ -615,18 +665,32 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     line-height: 16px !important;
     color: var(--dx-muted) !important;
     text-transform: lowercase;
+    transition: color var(--dx-ease);
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:hover * {
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:is(:hover, :focus-visible) * {
     color: var(--dx-fg) !important;
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesHeader"] button:focus-visible span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] {
     padding: 0 !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"]:hover {
-    background: color-mix(in srgb, var(--dx-fg) 6%, transparent) !important;
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"],
+  html:not(.dx-off) [data-testid="typeaheadResult"] button {
+    outline: none !important;
+    transition: background-color var(--dx-ease);
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"]:is(:hover, :focus-within),
+  html:not(.dx-off) [data-testid="typeaheadResult"] button:is(:hover, :focus-visible),
+  html:not(.dx-off) [role="listbox"] [role="option"][aria-selected="true"] :is([data-testid="typeaheadRecentSearchesItem"], [data-testid="typeaheadResult"] button) {
+    background: var(--dx-hover) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] > div {
@@ -652,10 +716,15 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     border-radius: 0 !important;
     background: transparent !important;
     color: var(--dx-muted) !important;
+    outline: none !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"]:hover {
-    color: var(--dx-fg) !important;
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"] svg {
+    transition: fill var(--dx-ease);
+  }
+
+  html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] button[aria-label="Remove"]:is(:hover, :focus-visible) svg {
+    fill: var(--dx-fg) !important;
   }
 
   html:not(.dx-off) [data-testid="typeaheadRecentSearchesItem"] svg,
@@ -675,7 +744,298 @@ html:not(.dx-off) article [role="group"] [data-testid="removeBookmark"] [dir="lt
     padding: 8px 12px !important;
   }
 
-  html:not(.dx-off) [data-testid="typeaheadResult"] button:hover {
-    background: color-mix(in srgb, var(--dx-fg) 6%, transparent) !important;
+}
+
+/* Dialogs, toasts and hover cards: the same flat panel as menus, with a short fade and pop. */
+@keyframes dx-fade {
+  from {
+    opacity: 0;
   }
+}
+
+@keyframes dx-lift {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+html:not(.dx-off) #layers [data-testid="mask"] {
+  background-color: var(--dx-mask) !important;
+  backdrop-filter: none !important;
+  animation: dx-fade 120ms ease;
+}
+
+html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"],
+html:not(.dx-off) [data-testid="HoverCard"] {
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 0 !important;
+  background-color: var(--dx-menu-bg) !important;
+  box-shadow: none !important;
+  transform-origin: top center;
+  animation: dx-pop 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+html:not(.dx-off) #layers div:has(> [data-testid="HoverCard"]) {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] {
+  padding: 24px !important;
+  transform-origin: center;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] :is(h1, [role="heading"]),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] :is(h1, [role="heading"]) * {
+  color: var(--dx-fg) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
+  text-transform: lowercase;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] :is(p, [dir="ltr"]:not(button *, h1 *, [role="heading"] *)),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] :is(p, [dir="ltr"]:not(button *, h1 *, [role="heading"] *)) * {
+  color: var(--dx-muted) !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+}
+
+/* Dialog and composer buttons share the "see new posts" pill. */
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button,
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]) {
+  min-height: 0 !important;
+  padding: 6px 14px !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 999px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  outline: none !important;
+  transition:
+    background-color var(--dx-ease),
+    border-color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button {
+  width: 100% !important;
+  margin-top: 8px !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button,
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button *,
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]),
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]) * {
+  color: var(--dx-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
+  text-transform: lowercase;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"],
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"] *,
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]),
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]) * {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] [data-testid="confirmationSheetConfirm"],
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--dx-line-strong) !important;
+}
+
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):is(:disabled, [aria-disabled="true"]) {
+  border-color: color-mix(in srgb, var(--dx-muted) 16%, transparent) !important;
+}
+
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):is(:disabled, [aria-disabled="true"]) * {
+  color: var(--dx-faint) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible),
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  border-color: var(--dx-line-strong) !important;
+  background-color: var(--dx-hover) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible),
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:is(:hover, :focus-visible) * {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="confirmationSheetDialog"] button:focus-visible span,
+html:not(.dx-off) :is([data-testid="tweetButton"], [data-testid="tweetButtonInline"]):focus-visible span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Toasts */
+html:not(.dx-off) [data-testid="toast"] {
+  padding: 10px 14px !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 0 !important;
+  background-color: var(--dx-menu-bg) !important;
+  box-shadow: none !important;
+  animation: dx-lift 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+html:not(.dx-off) [data-testid="toast"] * {
+  color: var(--dx-fg) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+html:not(.dx-off) [data-testid="toast"] :is(a, [role="button"], button),
+html:not(.dx-off) [data-testid="toast"] :is(a, [role="button"], button) * {
+  color: var(--dx-muted) !important;
+  text-decoration: none !important;
+  text-transform: lowercase;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="toast"] :is(a, [role="button"], button):is(:hover, :focus-visible),
+html:not(.dx-off) [data-testid="toast"] :is(a, [role="button"], button):is(:hover, :focus-visible) * {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="toast"] :is(a, [role="button"], button):focus-visible {
+  outline: none !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+
+/* New post: the modal and the inline composer on home. */
+html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]) [data-testid="app-bar-close"] {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  background-color: transparent !important;
+  color: var(--dx-muted) !important;
+  outline: none !important;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]) [data-testid="app-bar-close"] svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+html:not(.dx-off) #layers [aria-labelledby="modal-header"]:has([data-testid="tweetTextarea_0"]) [data-testid="app-bar-close"]:is(:hover, :focus-visible) {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="unsentButton"],
+html:not(.dx-off) [data-testid="unsentButton"] * {
+  min-height: 0 !important;
+  background-color: transparent !important;
+  color: var(--dx-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
+  text-transform: lowercase;
+  outline: none !important;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="unsentButton"]:is(:hover, :focus-visible),
+html:not(.dx-off) [data-testid="unsentButton"]:is(:hover, :focus-visible) * {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="tweetTextarea_0"],
+html:not(.dx-off) [data-testid="tweetTextarea_0"] *,
+html:not(.dx-off) :has(> [data-testid="tweetTextarea_0"]) .public-DraftEditorPlaceholder-inner,
+html:not(.dx-off) .public-DraftEditorPlaceholder-inner {
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+
+html:not(.dx-off) [data-testid="tweetTextarea_0"] {
+  caret-color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) .public-DraftEditorPlaceholder-inner {
+  color: var(--dx-muted) !important;
+  text-transform: lowercase;
+}
+
+html:not(.dx-off) :is([data-testid="primaryColumn"], #layers) [aria-label$="can reply"],
+html:not(.dx-off) :is([data-testid="primaryColumn"], #layers) [aria-label$="can reply"] * {
+  color: var(--dx-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
+  text-transform: lowercase;
+}
+
+/* Composer tools become text, like the post actions. */
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] {
+  gap: 14px !important;
+  align-items: baseline !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]) {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 4px 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  color: var(--dx-muted) !important;
+  outline: none !important;
+  transition: color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]):is(:disabled, [aria-disabled="true"]) {
+  color: var(--dx-faint) !important;
+  opacity: 1 !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  color: var(--dx-fg) !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]):focus-visible::before {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"]):is([aria-label="Add photos or video"], [data-testid="gifSearchButton"], [data-testid="createPollButton"], [aria-label="Add emoji"], [data-testid="scheduleOption"], [data-testid="geoButton"]) > * {
+  display: none !important;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [role="tablist"] :is(button, [role="button"])::before {
+  font-size: 12.5px;
+  line-height: 16px;
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [aria-label="Add photos or video"]::before {
+  content: "media";
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [data-testid="gifSearchButton"]::before {
+  content: "gif";
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [data-testid="createPollButton"]::before {
+  content: "poll";
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [aria-label="Add emoji"]::before {
+  content: "emoji";
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [data-testid="scheduleOption"]::before {
+  content: "schedule";
+}
+
+html:not(.dx-off) [data-testid="toolBar"] [data-testid="geoButton"]::before {
+  content: "location";
 }
