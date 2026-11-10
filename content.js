@@ -1,0 +1,372 @@
+(() => {
+  "use strict";
+
+  const root = document.documentElement;
+  const OFF_CLASS = "dx-off";
+  const OFF_KEY = "debloat-x:off";
+  const PROFILE_KEY = "debloat-x:profile";
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const X_LOGO_PATH =
+    "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z";
+  const DESKTOP_QUERY = window.matchMedia("(min-width: 701px)");
+  const PROFILE_SELECTOR = '[data-testid="AppTabBar_Profile_Link"]';
+  const SEARCH_SELECTOR = '[data-testid="primaryColumn"] [data-testid="SearchBox_Search_Input"]';
+  const ARTICLE_SELECTOR = 'article[data-testid="tweet"]';
+  const UPSELL_SELECTOR = '[data-testid="primaryColumn"] a[href="/i/premium_sign_up"]';
+  const PROFILE_PATH = /^\/[A-Za-z0-9_]{1,15}$/;
+  const POST_PATH = /^\/[A-Za-z0-9_]{1,15}\/status\/\d+/;
+  // Pages that use X's full-width layout. Every other page gets the centered 600px column
+  // from the first frame, so the column never resizes when the sidebar mounts.
+  const WIDE_ROUTES = ["/settings", "/i/chat", "/messages", "/i/grok"];
+
+  // Local storage is synchronous, so the off state is known before X renders anything.
+  // chrome.storage stays the source of truth and refreshes this mirror below.
+  const readLocal = (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
+  const writeLocal = (key, value) => {
+    try {
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn("Debloat X could not write local storage.", error);
+    }
+  };
+
+  let enabled = readLocal(OFF_KEY) !== "1";
+  root.classList.toggle(OFF_CLASS, !enabled);
+
+  const startsWithAny = (path, prefixes) => prefixes.some((prefix) => path === prefix || path.startsWith(prefix + "/"));
+
+  const NAV_ITEMS = [
+    { key: "home", label: "home", path: "/home", native: '[data-testid="AppTabBar_Home_Link"]', match: (path) => path === "/home" },
+    { key: "explore", label: "explore", hint: "/", path: "/explore", native: '[data-testid="AppTabBar_Explore_Link"]', match: (path) => startsWithAny(path, ["/explore", "/search"]) },
+    { key: "notifications", label: "notifications", path: "/notifications", native: '[data-testid="AppTabBar_Notifications_Link"]', count: true, match: (path) => startsWithAny(path, ["/notifications"]) },
+    { key: "chat", label: "chat", path: "/i/chat", native: '[data-testid="AppTabBar_DirectMessage_Link"]', count: true, match: (path) => startsWithAny(path, ["/i/chat", "/messages"]) },
+    { key: "history", label: "history", path: "/i/history", native: 'header[role="banner"] a[href="/i/history"]', match: (path) => startsWithAny(path, ["/i/history", "/i/bookmarks"]) },
+    {
+      key: "profile",
+      label: "profile",
+      path: "/",
+      native: PROFILE_SELECTOR,
+      match: (path, profilePath) => {
+        if (!profilePath) return false;
+        const current = path.toLowerCase();
+        const own = profilePath.toLowerCase();
+        return (current === own || current.startsWith(own + "/")) && !current.startsWith(own + "/status/");
+      },
+    },
+  ];
+
+  const ACTION_ITEMS = [
+    { key: "write", label: "write", hint: "n", path: "/compose/post", native: '[data-testid="SideNav_NewTweet_Button"]' },
+    { key: "settings", label: "settings", path: "/settings", match: (path) => startsWithAny(path, ["/settings"]) },
+  ];
+
+  const ALL_ITEMS = [...NAV_ITEMS, ...ACTION_ITEMS];
+  const ITEMS_BY_KEY = new Map(ALL_ITEMS.map((item) => [item.key, item]));
+  const itemLinks = new Map();
+
+  const cachedProfile = readLocal(PROFILE_KEY);
+  let profilePath = cachedProfile && PROFILE_PATH.test(cachedProfile) ? cachedProfile : "";
+  let nav = null;
+  let nativeHeader = null;
+  let lastPath = "";
+
+  const nativeObserver = new MutationObserver(() => updateNav(true));
+  const themeObserver = new MutationObserver(() => syncTheme());
+
+  const setText = (node, value) => {
+    if (node.textContent !== value) node.textContent = value;
+  };
+
+  const setAttr = (node, name, value) => {
+    if (value === null) {
+      if (node.hasAttribute(name)) node.removeAttribute(name);
+    } else if (node.getAttribute(name) !== value) {
+      node.setAttribute(name, value);
+    }
+  };
+
+  const isEditable = (target) =>
+    target instanceof Element &&
+    !!target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="textbox"]');
+
+  const navigate = (path) => {
+    if (location.pathname === path) return;
+    history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
+  };
+
+  const focusSearch = (attempt = 0) => {
+    const input = document.querySelector(SEARCH_SELECTOR);
+    if (input) {
+      input.focus();
+      return;
+    }
+    if (attempt === 0) {
+      const nativeTarget = document.querySelector('[data-testid="AppTabBar_Explore_Link"]');
+      if (nativeTarget) nativeTarget.click();
+      else navigate("/explore");
+    }
+    if (attempt < 40) setTimeout(() => focusSearch(attempt + 1), 50);
+  };
+
+  function activate(key) {
+    const item = ITEMS_BY_KEY.get(key);
+    if (!item) return;
+    if (key === "explore") {
+      focusSearch();
+      return;
+    }
+    const nativeTarget = item.native && document.querySelector(item.native);
+    if (nativeTarget) {
+      nativeTarget.click();
+    } else if (key === "profile" && !profilePath) {
+      console.warn("Debloat X has not found your profile link yet.");
+    } else {
+      navigate(key === "profile" ? profilePath : item.path);
+    }
+  }
+
+  const buildLogo = () => {
+    const link = document.createElement("a");
+    link.className = "dx-logo";
+    link.href = "/home";
+    link.dataset.dxKey = "home";
+    link.setAttribute("aria-label", "home");
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(SVG_NS, "path");
+    path.setAttribute("d", X_LOGO_PATH);
+    svg.append(path);
+    link.append(svg);
+    return link;
+  };
+
+  const buildItem = (item) => {
+    const link = document.createElement("a");
+    link.className = "dx-item";
+    link.href = item.path;
+    link.dataset.dxKey = item.key;
+    const label = document.createElement("span");
+    label.className = "dx-label";
+    label.textContent = item.label;
+    const meta = document.createElement("span");
+    meta.className = item.hint ? "dx-hint" : "dx-count";
+    meta.textContent = item.hint || "";
+    link.append(label, meta);
+    itemLinks.set(item.key, link);
+    return link;
+  };
+
+  const buildGroup = (items) => {
+    const group = document.createElement("div");
+    group.className = "dx-group";
+    group.append(...items.map(buildItem));
+    return group;
+  };
+
+  const buildNav = () => {
+    const element = document.createElement("nav");
+    element.id = "dx-nav";
+    element.setAttribute("aria-label", "Debloat X navigation");
+    element.append(buildLogo(), buildGroup(NAV_ITEMS), buildGroup(ACTION_ITEMS));
+    element.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest("a[data-dx-key]") : null;
+      if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      activate(link.dataset.dxKey);
+    });
+    return element;
+  };
+
+  const readCount = (nativeLink) => {
+    if (!nativeLink) return "";
+    const label = nativeLink.getAttribute("aria-label") || "";
+    const fromLabel = label.match(/(\d[\d,.]*\+?)\s+unread/i);
+    if (fromLabel) return fromLabel[1];
+    for (const node of nativeLink.querySelectorAll("span, div")) {
+      if (node.children.length) continue;
+      const text = node.textContent.trim();
+      if (/^\d+\+?$/.test(text)) return text;
+    }
+    return "";
+  };
+
+  // X writes the saved theme into the server-rendered <body style>, so this is correct on the first frame.
+  const syncTheme = () => {
+    const channels = getComputedStyle(document.body).backgroundColor.match(/\d+(\.\d+)?/g);
+    if (!channels || channels.length < 3) return;
+    const [red, green, blue] = channels.map(Number);
+    const theme = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255 > 0.5 ? "light" : "dark";
+    if (root.dataset.dxTheme !== theme) root.dataset.dxTheme = theme;
+  };
+
+  const watchNativeNav = () => {
+    const header = document.querySelector('header[role="banner"]');
+    if (header === nativeHeader) return;
+    nativeObserver.disconnect();
+    nativeHeader = header;
+    if (header) {
+      nativeObserver.observe(header, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "href"] });
+    }
+  };
+
+  function updateNav(force = false) {
+    if (!nav) return;
+    syncRoute();
+    const searchInput = document.querySelector(SEARCH_SELECTOR);
+    if (searchInput && searchInput.placeholder !== "search") searchInput.placeholder = "search";
+    const path = location.pathname;
+    const liveProfile = document.querySelector(PROFILE_SELECTOR)?.getAttribute("href") || "";
+    if (liveProfile && PROFILE_PATH.test(liveProfile) && liveProfile !== profilePath) {
+      profilePath = liveProfile;
+      writeLocal(PROFILE_KEY, profilePath);
+      force = true;
+    }
+    if (!force && path === lastPath) return;
+    lastPath = path;
+    for (const item of ALL_ITEMS) {
+      const link = itemLinks.get(item.key);
+      if (item.key === "profile" && profilePath) setAttr(link, "href", profilePath);
+      setAttr(link, "aria-current", item.match?.(path, profilePath) ? "page" : null);
+      if (item.count) setText(link.lastElementChild, readCount(document.querySelector(item.native)));
+    }
+  }
+
+  const isPromoted = (article) => {
+    for (const span of article.querySelectorAll("span")) {
+      if (span.children.length) continue;
+      const text = span.textContent.trim();
+      if ((text === "Ad" || text === "Promoted") && !span.closest('[data-testid="tweetText"], [data-testid="User-Name"] a')) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const checkArticle = (article) => {
+    const cell = article.closest('[data-testid="cellInnerDiv"]');
+    if (!cell) return;
+    if (isPromoted(article)) setAttr(cell, "data-dx-promoted", "");
+    else setAttr(cell, "data-dx-promoted", null);
+  };
+
+  // CSS hides the known card shape. This catches the same card if X changes its nesting depth.
+  const markUpsell = (link) => {
+    let node = link.parentElement;
+    for (let depth = 0; node && depth < 4; depth += 1, node = node.parentElement) {
+      if (node.matches('[data-testid="primaryColumn"], [data-testid="cellInnerDiv"]')) return;
+      const style = getComputedStyle(node);
+      if (style.backgroundColor !== "rgba(0, 0, 0, 0)" && style.borderRadius !== "0px") {
+        setAttr(node, "data-dx-upsell", "");
+        return;
+      }
+    }
+  };
+
+  const scanAdded = (node) => {
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    if (node.matches(ARTICLE_SELECTOR)) {
+      checkArticle(node);
+    } else {
+      const host = node.closest(ARTICLE_SELECTOR);
+      if (host) {
+        const text = node.textContent;
+        if (text.includes("Ad") || text.includes("Promoted")) checkArticle(host);
+      } else {
+        for (const article of node.querySelectorAll(ARTICLE_SELECTOR)) checkArticle(article);
+      }
+    }
+    if (node.matches(UPSELL_SELECTOR)) markUpsell(node);
+    else for (const link of node.querySelectorAll(UPSELL_SELECTOR)) markUpsell(link);
+  };
+
+  const syncRoute = () => {
+    const path = location.pathname;
+    const route =
+      path === "/home"
+        ? "home"
+        : startsWithAny(path, ["/explore"])
+          ? "explore"
+          : WIDE_ROUTES.some((prefix) => startsWithAny(path, [prefix]))
+            ? "wide"
+            : POST_PATH.test(path)
+              ? "post"
+              : "page";
+    if (root.dataset.dxRoute !== route) root.dataset.dxRoute = route;
+  };
+
+  const sync = () => {
+    syncRoute();
+    if (!document.body) return;
+    if (!nav) {
+      nav = buildNav();
+      syncTheme();
+      themeObserver.observe(document.body, { attributes: true, attributeFilter: ["style", "class"] });
+    }
+    if (!nav.isConnected) document.body.prepend(nav);
+    watchNativeNav();
+    updateNav();
+  };
+
+  // MutationObserver callbacks run as microtasks after X commits DOM and before the browser paints.
+  // That keeps every JS-driven change out of the visible frames.
+  const onMutations = (records) => {
+    if (!enabled) return;
+    sync();
+    for (const record of records) {
+      for (const node of record.addedNodes) scanAdded(node);
+    }
+  };
+
+  const setEnabled = (value) => {
+    enabled = value;
+    writeLocal(OFF_KEY, enabled ? null : "1");
+    root.classList.toggle(OFF_CLASS, !enabled);
+    if (enabled) {
+      sync();
+      if (document.body) scanAdded(document.body);
+    }
+  };
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (!enabled || !DESKTOP_QUERY.matches || event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isEditable(event.target)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      focusSearch();
+    },
+    true,
+  );
+
+  // Route changes update the route attribute synchronously, before X renders the next page.
+  globalThis.navigation?.addEventListener?.("currententrychange", () => enabled && sync());
+  window.addEventListener("popstate", () => enabled && sync());
+  new MutationObserver(onMutations).observe(root, { childList: true, subtree: true });
+  syncRoute();
+  if (enabled) sync();
+
+  const storage = globalThis.chrome?.storage?.local;
+  if (storage) {
+    storage
+      .get({ enabled: true })
+      .then((result) => {
+        const next = result.enabled !== false;
+        if (next !== enabled) setEnabled(next);
+      })
+      .catch((error) => console.error("Debloat X could not read its on/off setting.", error));
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && changes.enabled) setEnabled(changes.enabled.newValue !== false);
+    });
+  }
+})();
