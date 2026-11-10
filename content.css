@@ -416,7 +416,8 @@ html:not(.dx-off) #layers [role="menuitem"] * {
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button :is(img, [data-testid^="UserAvatar"]),
-html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button > div > :not(svg, :has(svg), [data-testid="pillLabel"], :has([data-testid="pillLabel"])) {
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button > div > :not([data-testid="pillLabel"], :has([data-testid="pillLabel"])),
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button svg {
   display: none !important;
 }
 
@@ -425,6 +426,14 @@ html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-te
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"] * {
   font-size: 0 !important;
   line-height: 0 !important;
+}
+
+html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"]::before {
+  content: "\2191";
+  margin-right: 6px;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 16px !important;
 }
 
 html:not(.dx-off) [role="status"]:has([data-testid="pillLabel"]) button [data-testid="pillLabel"]::after {
@@ -1148,4 +1157,26 @@ html:not(.dx-off) [data-testid="toolBar"] [data-testid="scheduleOption"]::before
 
 html:not(.dx-off) [data-testid="toolBar"] [data-testid="geoButton"]::before {
   content: "location";
+}
+
+/* Photos and video in posts: a double border. An outer frame with a faint tint,
+   then the media inset by 4px with its own hairline, so attachments read as objects. */
+html:not(.dx-off) [data-dx-media] {
+  box-sizing: border-box !important;
+  padding: 5px !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: 15px !important;
+  background-color: color-mix(in srgb, var(--dx-fg) 6%, transparent) !important;
+  transition: border-color var(--dx-ease);
+}
+
+html:not(.dx-off) [data-dx-media]:hover {
+  border-color: var(--dx-line-strong) !important;
+}
+
+html:not(.dx-off) [data-dx-media] > * {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  outline: 1px solid color-mix(in srgb, var(--dx-fg) 12%, transparent);
+  outline-offset: -1px;
 }
