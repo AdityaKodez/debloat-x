@@ -14,9 +14,10 @@
   const ARTICLE_SELECTOR = 'article[data-testid="tweet"]';
   const UPSELL_SELECTOR = '[data-testid="primaryColumn"] a[href="/i/premium_sign_up"]';
   const MEDIA_SELECTOR = 'article [data-testid="tweetPhoto"], article [data-testid="videoPlayer"]';
+  const NEW_POSTS_SELECTOR = '[role="status"] button:has([data-testid="pillLabel"])';
   const PROFILE_PATH = /^\/[A-Za-z0-9_]{1,15}$/;
   const POST_PATH = /^\/[A-Za-z0-9_]{1,15}\/status\/\d+/;
-  // Pages that use X's full-width layout. Every other page gets the centered 600px column
+  // Pages that use X's full-width layout. Every other page gets the centered content column
   // from the first frame, so the column never resizes when the sidebar mounts.
   const WIDE_ROUTES = ["/settings", "/i/chat", "/messages", "/i/grok"];
   // Modal URLs open over the current page (write, photo viewer, display settings).
@@ -79,6 +80,7 @@
   const cachedProfile = readLocal(PROFILE_KEY);
   let profilePath = cachedProfile && PROFILE_PATH.test(cachedProfile) ? cachedProfile : "";
   let nav = null;
+  let glassFilter = null;
   let nativeHeader = null;
   let lastPath = "";
 
@@ -108,6 +110,7 @@
   };
 
   const focusSearch = (attempt = 0) => {
+    if (document.querySelector('[role="dialog"][aria-modal="true"], #layers [role="dialog"]')) return;
     const input = document.querySelector(SEARCH_SELECTOR);
     if (input) {
       input.focus();
@@ -148,6 +151,32 @@
     svg.append(path);
     link.append(svg);
     return link;
+  };
+
+  // An inline SVG filter lets the post back button refract the content behind it.
+  const buildGlassFilter = () => {
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("width", "0");
+    svg.setAttribute("height", "0");
+    svg.style.position = "absolute";
+    const filter = document.createElementNS(SVG_NS, "filter");
+    filter.id = "dx-glass";
+    filter.setAttribute("color-interpolation-filters", "sRGB");
+    const noise = document.createElementNS(SVG_NS, "feTurbulence");
+    noise.setAttribute("type", "fractalNoise");
+    noise.setAttribute("baseFrequency", "0.015 0.025");
+    noise.setAttribute("numOctaves", "2");
+    noise.setAttribute("result", "noise");
+    const displacement = document.createElementNS(SVG_NS, "feDisplacementMap");
+    displacement.setAttribute("in", "SourceGraphic");
+    displacement.setAttribute("in2", "noise");
+    displacement.setAttribute("scale", "8");
+    displacement.setAttribute("xChannelSelector", "R");
+    displacement.setAttribute("yChannelSelector", "G");
+    filter.append(noise, displacement);
+    svg.append(filter);
+    return svg;
   };
 
   const buildItem = (item) => {
@@ -289,6 +318,13 @@
   // Explore keeps Today's News (as a plain "title … time" list) and the post feed.
   // Trends, who to follow and their "show more" links are hidden.
   const CELL_SELECTOR = '[data-testid="primaryColumn"] [data-testid="cellInnerDiv"]';
+  const markShowPosts = (cell) => {
+    for (const button of cell.querySelectorAll('button, [role="button"]')) {
+      const label = button.textContent.replace(/\s+/g, " ").trim();
+      const isShowPosts = !button.closest("article") && /^show\s+[\d,.]+\s+posts?$/i.test(label);
+      setAttr(button, "data-dx-show-posts", isShowPosts ? "" : null);
+    }
+  };
   const HIDE_IN_EXPLORE = '[data-testid="UserCell"], a[href^="/i/connect_people"], a[href^="/i/trends"]';
   const TIME_TEXT = /^(\d+)\s*(s|m|h|d|sec|secs|min|mins|minutes?|hours?|hrs?|days?)\b(\s+ago)?$|^(trending now|live)$/i;
 
@@ -315,7 +351,10 @@
     if (cell.querySelector("article")) return { kind: null };
     if (cell.querySelector(HIDE_IN_EXPLORE)) return { kind: "hide" };
     const heading = cell.querySelector('h2, [role="heading"]');
-    if (heading) return { kind: /news/i.test(heading.textContent) ? "news-head" : "hide" };
+    if (heading) {
+      if (/news/i.test(heading.textContent)) return { kind: "news-head" };
+      return { kind: /who to follow|trends/i.test(heading.textContent) ? "hide" : null };
+    }
     // X uses "trend" for both news stories and topics. Only topics have a More menu.
     const trend = cell.querySelector('[data-testid="trend"]');
     if (trend?.querySelector('button[aria-label="More"]')) return { kind: "hide" };
@@ -324,10 +363,10 @@
     // Keep loading indicators and controls while X is still populating a cell.
     if (!texts.length) return { kind: cell.querySelector('[role="progressbar"], [aria-busy="true"], img, video, button, a[href]') ? null : "hide" };
     const time = texts.map(shortTime).find(Boolean) || "";
-    const title = texts.find((text) => text.length >= 16 && !shortTime(text) && text !== "·");
+    const title = trend?.querySelector('[dir="ltr"]')?.textContent.trim() || "";
     const target = cell.querySelector('[role="link"]:not(.dx-news), a[href]:not(.dx-news)');
-    if (trend && !time) return { kind: "hide" };
-    return title && target ? { kind: "news", title, time, target } : { kind: "hide" };
+    if (trend && !time) return { kind: null };
+    return title && target ? { kind: "news", title, time, target } : { kind: null };
   };
 
   const renderNews = (cell, { title, time, target }) => {
@@ -390,6 +429,8 @@
     else for (const link of node.querySelectorAll(UPSELL_SELECTOR)) markUpsell(link);
     if (node.matches(MEDIA_SELECTOR)) markMedia(node);
     else for (const media of node.querySelectorAll(MEDIA_SELECTOR)) markMedia(media);
+    if (node.matches(CELL_SELECTOR)) markShowPosts(node);
+    else for (const cell of node.querySelectorAll(CELL_SELECTOR)) markShowPosts(cell);
   };
 
   function syncRoute() {
@@ -414,6 +455,8 @@
   const sync = () => {
     syncRoute();
     if (!document.body) return;
+    if (!glassFilter) glassFilter = buildGlassFilter();
+    if (!glassFilter.isConnected) document.body.prepend(glassFilter);
     if (!nav) {
       nav = buildNav();
       syncTheme();
@@ -433,9 +476,10 @@
     const onExplore = root.dataset.dxRoute === "explore";
     for (const record of records) {
       for (const node of record.addedNodes) scanAdded(node);
-      if (!onExplore) continue;
       const target = record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement;
       const cell = target?.closest(CELL_SELECTOR);
+      if (cell) markShowPosts(cell);
+      if (!onExplore) continue;
       if (cell) exploreCells.add(cell);
       for (const node of record.addedNodes) {
         if (node.nodeType !== Node.ELEMENT_NODE) continue;
@@ -460,8 +504,25 @@
   window.addEventListener(
     "keydown",
     (event) => {
+      if (event.key === ".") {
+        if (!enabled || !DESKTOP_QUERY.matches || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.repeat || isEditable(event.target)) return;
+        if (document.querySelector('[role="dialog"][aria-modal="true"], #layers [role="dialog"]')) return;
+        const button = [...document.querySelectorAll(NEW_POSTS_SELECTOR)].find(
+          (candidate) => !candidate.disabled && candidate.getAttribute("aria-disabled") !== "true" && candidate.getClientRects().length && getComputedStyle(candidate).visibility === "visible",
+        );
+        if (!button) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        button.click();
+        return;
+      }
       if (!enabled || !DESKTOP_QUERY.matches || event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
       if (isEditable(event.target)) return;
+      if (document.querySelector('[role="dialog"][aria-modal="true"], #layers [role="dialog"]')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
       focusSearch();
