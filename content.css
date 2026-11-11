@@ -589,8 +589,10 @@ html:not(.dx-off) [data-testid="User-Name"] * {
     padding-bottom: 8px !important;
   }
 
-  /* X draws thread connectors flush to the post edges; stretch them across the padding above. */
-  html:not(.dx-off) article[data-testid="tweet"] div:has(+ div [data-testid="Tweet-User-Avatar"]) div:empty {
+  /* X draws thread connectors flush to the post edges; stretch them across the padding above.
+     Only the row directly above the avatar's column: a quoted post has its own avatar deeper down,
+     and matching it would squash the author's avatar. */
+  html:not(.dx-off) article[data-testid="tweet"] div:has(+ div > div > [data-testid="Tweet-User-Avatar"]) div:empty {
     margin-top: -8px !important;
   }
 
