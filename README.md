@@ -2,12 +2,37 @@
 
 A Chrome extension that turns x.com into a quiet, text-first layout: a small text nav on the left, one centered timeline, and no sidebar, Grok, or upsells.
 
+It is a Manifest V3 extension with no build step and no dependencies. It restyles the page with CSS and a small content script, and it never sends your data anywhere.
+
+## What it is
+
+X's web app puts a lot around the timeline: a right sidebar, trends, "who to follow", Premium cards, Grok, a chat drawer and promoted posts. Debloat X removes those and keeps the parts you read and write with: your Home timeline and tabs, Explore search and news, notifications, chat, profiles and the composer.
+
+It runs only on `x.com` and `twitter.com`. The only permission it asks for is `storage`, which remembers whether it is switched on.
+
 ## Install
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode** (top right).
-3. Click **Load unpacked** and select this `debloat-x` folder.
-4. Reload any open x.com tabs.
+The extension is not on the Chrome Web Store, so you load it from source.
+
+1. Get the code:
+   ```
+   git clone https://github.com/AdityaKodez/debloat-x.git
+   ```
+   Or use **Code > Download ZIP** on GitHub and unzip it.
+2. Open `chrome://extensions` in Chrome.
+3. Turn on **Developer mode** (top right).
+4. Click **Load unpacked** and select the folder that contains `manifest.json`.
+5. Reload any open x.com tabs.
+
+Pin the extension from the puzzle-piece menu if you want the on/off button in the toolbar. It is built and tested in Chrome only.
+
+### Update
+
+Run `git pull` in the folder, click the reload icon on the Debloat X card in `chrome://extensions`, then reload your x.com tabs.
+
+### Uninstall
+
+Click **Remove** on the Debloat X card in `chrome://extensions`.
 
 ## Use
 
