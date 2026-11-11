@@ -94,38 +94,6 @@ html:not(.dx-off) #react-root * {
     pointer-events: none !important;
   }
 
-  html:not(.dx-off) header[role="banner"] [data-testid="SideNav_AccountSwitcher_Button"] {
-    position: fixed !important;
-    top: 418px !important;
-    left: 36px !important;
-    z-index: 1;
-    display: flex !important;
-    width: auto !important;
-    min-width: 80px !important;
-    min-height: 32px !important;
-    padding: 0 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    background: transparent !important;
-    color: var(--dx-muted) !important;
-    border-radius: 0 !important;
-  }
-
-  html:not(.dx-off) header[role="banner"] [data-testid="SideNav_AccountSwitcher_Button"] > * {
-    display: none !important;
-  }
-
-  html:not(.dx-off) header[role="banner"] [data-testid="SideNav_AccountSwitcher_Button"]::before {
-    content: "account";
-    font: 400 14px/18px var(--dx-font);
-  }
-
-  html:not(.dx-off) header[role="banner"] [data-testid="SideNav_AccountSwitcher_Button"]:is(:hover, :focus-visible) {
-    color: var(--dx-fg) !important;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
   html:not(.dx-off) #dx-nav {
     display: flex;
   }
@@ -168,12 +136,6 @@ html:not(.dx-off) #react-root * {
 @media (min-width: 701px) and (max-height: 500px) {
   html:not(.dx-off) #dx-nav {
     height: calc(100vh - 48px) !important;
-  }
-
-  html:not(.dx-off) header[role="banner"] [data-testid="SideNav_AccountSwitcher_Button"] {
-    top: auto !important;
-    bottom: 8px !important;
-    background: var(--dx-pill-bg) !important;
   }
 }
 

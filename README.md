@@ -17,7 +17,7 @@ A Chrome extension that turns x.com into a quiet, text-first layout: a small tex
 
 ## What it changes
 
-- Replaces X's left sidebar with a text nav: home, explore, notifications, chat, history, profile, write, settings, and the native account menu. Unread counts come from X's own nav.
+- Replaces X's left sidebar with a text nav: home, explore, notifications, chat, history, profile, write and settings. Unread counts come from X's own nav.
 - Explore keeps search, Today's News and the post feed. News items become a plain list of underlined titles with the time on the right; trends, tabs and "who to follow" are hidden. The search field is a flat line instead of a pill.
 - Explore opens without focusing search; click the field or press `/` to search. Suggestions and recent searches use a compact, scrollable text list without avatars or leading icons.
 - Hides the right sidebar, Grok, the chat drawer, Premium upsell cards and promoted posts.
