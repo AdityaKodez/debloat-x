@@ -588,6 +588,15 @@ html:not(.dx-off) [data-testid="User-Name"] * {
     padding-top: 8px !important;
     padding-bottom: 8px !important;
   }
+
+  /* X draws thread connectors flush to the post edges; stretch them across the padding above. */
+  html:not(.dx-off) article[data-testid="tweet"] div:has(+ div [data-testid="Tweet-User-Avatar"]) div:empty {
+    margin-top: -8px !important;
+  }
+
+  html:not(.dx-off) article[data-testid="tweet"] [data-testid="Tweet-User-Avatar"] + div {
+    margin-bottom: -8px !important;
+  }
 }
 
 html:not(.dx-off) article [role="group"] {
